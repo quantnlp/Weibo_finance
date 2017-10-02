@@ -18,19 +18,47 @@ def construct_tree(string):
     tree.update_counter()
     return tree
 
+def count_sentence_length(string):
+    """
+    Count number of sentences for each sentence length.
+
+    :return: count. There are count[i] sentences with length i.
+    """
+    split_mark = "#"
+    sentences = string.split(split_mark)
+    length = [len(string) for string in sentences]
+    max_length = max(length)
+
+    count = [0]*(max_length+1)
+    for l in length:
+        count[l] += 1
+
+    return count
 
 def load_dict(dict_file):
     dictionary = dict()
-    lines = dict_file.read().split("\n")
+    lines = dict_file.read().split("\n") # load dictionary lines
     count_sum = 0
-    for line in lines:
+    for line in lines: # each line in the dict
         if line:
+            print(line)
             cols = line.split(",")
+            if ((cols[1] == '') | (cols[0] == '')):
+                continue
             dictionary[cols[0]] = int(cols[1])*float(cols[-1])
             count_sum += int(cols[1])
     return {key: value/count_sum for key, value in dictionary.items()}
 
-
+def count_all_possibilities(sentence_length_count, word_length):
+        """
+        :return: How many combinations are there with length word_length.
+        """
+        count_sum = 0
+        for length, count in enumerate(sentence_length_count):
+            if length >= word_length:
+                count_sum += count*(length - word_length + 1)
+        return count_sum
+    
 def get_prob(tree, dictionary, sentence_length_count, string):
     """
     Get the probability that string is a word.
@@ -40,7 +68,7 @@ def get_prob(tree, dictionary, sentence_length_count, string):
         current_word_prob = dictionary[string]
     except KeyError:
         current_word_count = tree.query(string).counter
-        current_word_prob = current_word_count / dict_creat.count_all_possibilities(sentence_length_count, len(string))
+        current_word_prob = current_word_count / count_all_possibilities(sentence_length_count, len(string))
 
         if current_word_count == 1:
             for i in range(len(string)-1):
@@ -109,7 +137,7 @@ def word_split(inFile, dictFile):
     print("Building tree")
     string = load(input_file)
     tree = construct_tree(string)
-    sentence_length_count = dict_creat.count_sentence_length(string)
+    sentence_length_count = count_sentence_length(string)
 
     print("Processing")
     output_file_name = inFile.split('.')[0] + "-splitted.txt"

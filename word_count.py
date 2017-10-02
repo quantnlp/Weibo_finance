@@ -32,4 +32,4 @@ def word_count(fileIn):
         if len(row[0]) > 1:
             output_file.write("%s,%d\n" % (row[0], row[1]))
             
-    print("\n Finished word counting")
+    print("\nFinished word counting")
